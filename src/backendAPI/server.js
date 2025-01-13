@@ -120,4 +120,35 @@ app.listen(PORT, () =>
   console.log(`Server running on http://localhost:${PORT}`)
 );
 
+//Transaction API
+app.get("/api/transactions", (req, res) => {
+  const query = "SELECT id, date, category, description, amount FROM transactions";
+  db.query(query, (err, result) => {
+    if (err) {
+      console.error("Error fetching transactions:", err);
+      return res.status(500).json({ message: "Database error." });
+    }
+    res.json(result);
+  });
+});
+
+//Dashboard API
+app.get("/api/dashboard", (req, res) => {
+  const query = `SELECT 
+  SUM(CASE WHEN amount > 0 THEN amount ELSE 0 END) AS totalIncome,
+  SUM(CASE WHEN amount < 0 THEN amount ELSE 0 END) AS totalExpenses,
+  SUM(amount) AS netBalance
+  FROM transactions;
+  `;
+
+  db.query(query, (err, result) => {
+    if (err) {
+      console.error("Error fetching dashboard data:", err);
+      return res.status(500).json({ message: "Database error." });
+    }
+    res.json(result[0]);
+  });
+});
+
+
 

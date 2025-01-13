@@ -20,7 +20,7 @@ const SignUpPage = () => {
       if (response.ok) {
         alert("Sign up successful! You can now log in.");
         // Redirect to login page
-        window.location.href = "/login";
+        window.location.href = "/loginPage";
       } else {
         alert(`Sign up failed: ${data.message}`);
       }

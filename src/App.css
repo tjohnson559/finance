@@ -1,3 +1,4 @@
+/* Existing styles */
 .App {
   text-align: center;
 }
@@ -36,3 +37,127 @@
     transform: rotate(360deg);
   }
 }
+
+/* Styles for DashboardTransaction component */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
+}
+
+header {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 0;
+  text-align: center;
+}
+
+header h1 {
+  margin: 0;
+}
+
+main {
+  padding: 20px;
+}
+
+.dashboard {
+  padding: 20px;
+}
+
+.summary {
+  display: flex;
+  justify-content: space-around;
+  margin: 2rem 0; /* Combined top and bottom margins */
+}
+
+.card {
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 8px; /* Updated to use a rounded design */
+  padding: 20px;
+  width: 30%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Enhanced shadow for a modern look */
+  text-align: center;
+}
+
+.card h2 {
+  margin-top: 0;
+}
+
+.transactions {
+  margin: 2rem 0;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 1rem;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.transactions h2 {
+  margin-top: 0;
+}
+
+.transactions ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.transactions li {
+  border-bottom: 1px solid #ddd;
+  padding: 10px 0;
+  margin: 10px 0; /* Added margin for spacing */
+}
+
+.transactions li:last-child {
+  border-bottom: none;
+}
+
+/* Styles for Transaction List Page */
+.transaction-list-page {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.transaction-list-page header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.transaction-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 auto;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.transaction-table th,
+.transaction-table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.transaction-table th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+}
+
+.transaction-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.transaction-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+.transaction-table .income {
+  color: green;
+  font-weight: bold;
+}
+
+.transaction-table .expense {
+  color: red;
+  font-weight: bold;
+}
+
