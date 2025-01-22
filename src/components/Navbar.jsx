@@ -35,6 +35,17 @@ const Navbar = () => {
           </NavLink>
         </li>
         <li>
+          <NavLink
+            to="/add-transaction"
+            style={({ isActive }) => ({
+              ...styles.link,
+              ...(isActive ? styles.activeLink : {}),
+            })}
+          >
+            Add Transaction
+          </NavLink>
+        </li>
+        <li>
           <button onClick={handleLogout} style={styles.logoutButton}>
             Logout
           </button>

@@ -14,25 +14,28 @@ const TransactionList = () => {
           throw new Error("Failed to fetch transactions");
         }
         const data = await response.json();
+        console.log("Fetched transactions:", data); // Log the fetched transactions
 
         // Validate and convert transaction data
         const validatedData = data.map((transaction) => {
+          const amount = parseFloat(transaction.amount);
           if (
             typeof transaction.id !== "number" ||
             typeof transaction.date !== "string" ||
             typeof transaction.category !== "string" ||
             typeof transaction.description !== "string" ||
-            typeof transaction.amount !== "string"
+            typeof transaction.type !== "string" || // Ensure type is a string
+            isNaN(amount)
           ) {
             console.error("Invalid transaction data:", transaction);
-            throw new Error("Invalid transaction data");
+            return null; // Skip invalid transaction data
           }
 
           return {
             ...transaction,
-            amount: parseFloat(transaction.amount), // Convert amount to number
+            amount, // Use the parsed amount
           };
-        });
+        }).filter(transaction => transaction !== null); // Filter out invalid transactions
 
         setTransactions(validatedData);
       } catch (error) {
@@ -61,25 +64,25 @@ const TransactionList = () => {
               <th>Category</th>
               <th>Description</th>
               <th>Amount</th>
+              <th>Type</th> {/* Add a header for the type */}
             </tr>
           </thead>
           <tbody>
             {transactions.length > 0 ? (
               transactions.map((transaction) => (
                 <tr key={transaction.id}>
-                  <td>{transaction.date}</td>
+                  <td>{new Date(transaction.date).toLocaleDateString()}</td> {/* Format date */}
                   <td>{transaction.category || "N/A"}</td>
                   <td>{transaction.description}</td>
-                  <td
-                    className={transaction.amount < 0 ? "expense" : "income"}
-                  >
+                  <td className={transaction.amount < 0 ? "expense" : "income"}>
                     ${Math.abs(transaction.amount).toFixed(2)}
                   </td>
+                  <td>{transaction.type}</td> {/* Display the type */}
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="4" style={{ textAlign: "center" }}>
+                <td colSpan="5" style={{ textAlign: "center" }}>
                   No transactions available
                 </td>
               </tr>

@@ -150,5 +150,41 @@ app.get("/api/dashboard", (req, res) => {
   });
 });
 
+app.get("/api/transactions", (req, res) => {
+  const query = "SELECT id, date, category, description, amount FROM transactions";
+  db.query(query, (err, result) => {
+    if (err) {
+      console.error("Error fetching transactions:", err);
+      return res.status(500).json({ message: "Database error." });
+    }
+    console.log("Fetched transactions:", result); // Log the fetched transactions
+    res.json(result);
+  });
+});
+
+// Add Transaction API
+app.post("/api/transactions", (req, res) => {
+  const { amount, date, type, description, category } = req.body;
+
+  // Validate incoming data
+  if (!amount || !date || !type) {
+    return res.status(400).json({ message: "Amount, date, and type are required." });
+  }
+
+  // Insert the transaction into the database
+  const query = `
+    INSERT INTO transactions (amount, date, type, description, category)
+    VALUES (?, ?, ?, ?, ?)
+  `;
+  db.query(query, [amount, date, type, description, category], (err, result) => {
+    if (err) {
+      console.error("Error adding transaction:", err);
+      return res.status(500).json({ message: "Database error." });
+    }
+    res.status(201).json({ message: "Transaction added successfully!", transactionId: result.insertId });
+  });
+});
+
+
 
 

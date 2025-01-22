@@ -7,6 +7,7 @@ import DashboardTransaction from "./components/DashboardTransaction";
 import TransactionList from "./components/TransactionList";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Navbar from "./components/Navbar";
+import AddTransaction from "./components/AddTransaction";
 
 const App = () => {
   return (
@@ -36,6 +37,17 @@ const App = () => {
               <>
               <Navbar /> {/* Add the Navbar component */}
               <TransactionList />
+              </>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/add-Transaction"
+          element={
+            <ProtectedRoute>
+              <>
+              <Navbar /> {/* Add the Navbar component */}
+              <AddTransaction  /> {/*Render the addTransaction component */}
               </>
             </ProtectedRoute>
           }
