@@ -120,44 +120,14 @@ app.listen(PORT, () =>
   console.log(`Server running on http://localhost:${PORT}`)
 );
 
-//Transaction API
+// Transaction API
 app.get("/api/transactions", (req, res) => {
-  const query = "SELECT id, date, category, description, amount FROM transactions";
+  const query = "SELECT id, date, category, description, amount, type FROM transactions";
   db.query(query, (err, result) => {
     if (err) {
       console.error("Error fetching transactions:", err);
       return res.status(500).json({ message: "Database error." });
     }
-    res.json(result);
-  });
-});
-
-//Dashboard API
-app.get("/api/dashboard", (req, res) => {
-  const query = `SELECT 
-  SUM(CASE WHEN amount > 0 THEN amount ELSE 0 END) AS totalIncome,
-  SUM(CASE WHEN amount < 0 THEN amount ELSE 0 END) AS totalExpenses,
-  SUM(amount) AS netBalance
-  FROM transactions;
-  `;
-
-  db.query(query, (err, result) => {
-    if (err) {
-      console.error("Error fetching dashboard data:", err);
-      return res.status(500).json({ message: "Database error." });
-    }
-    res.json(result[0]);
-  });
-});
-
-app.get("/api/transactions", (req, res) => {
-  const query = "SELECT id, date, category, description, amount FROM transactions";
-  db.query(query, (err, result) => {
-    if (err) {
-      console.error("Error fetching transactions:", err);
-      return res.status(500).json({ message: "Database error." });
-    }
-    console.log("Fetched transactions:", result); // Log the fetched transactions
     res.json(result);
   });
 });
@@ -182,6 +152,73 @@ app.post("/api/transactions", (req, res) => {
       return res.status(500).json({ message: "Database error." });
     }
     res.status(201).json({ message: "Transaction added successfully!", transactionId: result.insertId });
+  });
+});
+
+// Update Transaction API
+app.put("/api/transactions/:id", (req, res) => {
+  const { id } = req.params;
+  const { amount, date, type, description, category } = req.body;
+
+  // Validate incoming data
+  if (!amount || !date || !type) {
+    return res.status(400).json({ message: "Amount, date, and type are required." });
+  }
+
+  // Format the date to 'YYYY-MM-DD'
+  const formattedDate = new Date(date).toISOString().split('T')[0];
+
+  // Update the transaction in the database
+  const query = `
+    UPDATE transactions
+    SET amount = ?, date = ?, type = ?, description = ?, category = ?
+    WHERE id = ?
+  `;
+  db.query(query, [amount, formattedDate, type, description, category, id], (err, result) => {
+    if (err) {
+      console.error("Error updating transaction:", err);
+      return res.status(500).json({ message: "Database error." });
+    }
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Transaction not found." });
+    }
+    res.json({ message: "Transaction updated successfully!" });
+  });
+});
+
+// Delete Transaction API
+app.delete("/api/transactions/:id", (req, res) => {
+  const { id } = req.params;
+
+  // Delete the transaction from the database
+  const query = "DELETE FROM transactions WHERE id = ?";
+  db.query(query, [id], (err, result) => {
+    if (err) {
+      console.error("Error deleting transaction:", err);
+      return res.status(500).json({ message: "Database error." });
+    }
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Transaction not found." });
+    }
+    res.json({ message: "Transaction deleted successfully!" });
+  });
+});
+
+// Dashboard API
+app.get("/api/dashboard", (req, res) => {
+  const query = `SELECT 
+  SUM(CASE WHEN amount > 0 THEN amount ELSE 0 END) AS totalIncome,
+  SUM(CASE WHEN amount < 0 THEN amount ELSE 0 END) AS totalExpenses,
+  SUM(amount) AS netBalance
+  FROM transactions;
+  `;
+
+  db.query(query, (err, result) => {
+    if (err) {
+      console.error("Error fetching dashboard data:", err);
+      return res.status(500).json({ message: "Database error." });
+    }
+    res.json(result[0]);
   });
 });
 

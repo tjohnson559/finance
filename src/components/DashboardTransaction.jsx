@@ -8,38 +8,63 @@ const DashboardTransaction = () => {
   const [netBalance, setNetBalance] = useState(0);
   const [dashboardError, setDashboardError] = useState("");
   const [transactionsError, setTransactionsError] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch dashboard summary data
-    fetch("http://localhost:5000/api/dashboard")
-      .then((response) => {
+    const fetchDashboardData = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/dashboard");
         if (!response.ok) throw new Error("Failed to fetch dashboard data");
-        return response.json();
-      })
-      .then((data) => {
+        const data = await response.json();
         setTotalIncome(data.totalIncome || 0);
         setTotalExpenses(data.totalExpenses || 0);
         setNetBalance(data.netBalance || 0);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("Error fetching dashboard data:", error);
-        setDashboardError("Failed to load dashboard summary.");
-      });
+        setDashboardError("Failed to load dashboard summary. Please try again later.");
+      }
+    };
 
-    // Fetch transactions
-    fetch("http://localhost:5000/api/transactions")
-      .then((response) => {
+    const fetchTransactions = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/transactions");
         if (!response.ok) throw new Error("Failed to fetch transactions");
-        return response.json();
-      })
-      .then((data) => {
+        const data = await response.json();
         console.log("Fetched transactions:", data); // Log the fetched transactions
-        setTransactions(data);
-      })
-      .catch((error) => {
+        const validatedTransactions = data.map((transaction) => {
+          const amount = parseFloat(transaction.amount); // Convert amount to a number
+
+          // Validate required fields
+          if (
+            typeof transaction.id !== "number" ||
+            typeof transaction.date !== "string" ||
+            typeof transaction.category !== "string" ||
+            typeof transaction.description !== "string" ||
+            typeof transaction.type !== "string" || // Ensure `type` is a string
+            isNaN(amount) // Ensure `amount` is a valid number
+          ) {
+            console.error("Invalid transaction data:", transaction);
+            return null; // Skip invalid transaction data
+          }
+
+          // Return validated and transformed transaction
+          return {
+            ...transaction,
+            amount, // Ensure `amount` is a number
+            type: transaction.type.toLowerCase(), // Normalize `type` to lowercase (optional)
+          };
+        }).filter(transaction => transaction !== null);
+        setTransactions(validatedTransactions); // Remove invalid transactions
+      } catch (error) {
         console.error("Error fetching transactions:", error);
-        setTransactionsError("Failed to load transactions.");
-      });
+        setTransactionsError("Failed to load transactions. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+    fetchTransactions();
   }, []);
 
   return (
@@ -70,26 +95,18 @@ const DashboardTransaction = () => {
         {/* Transactions Error */}
         {transactionsError && <p style={{ color: "red" }}>{transactionsError}</p>}
 
+        {/* Loading State */}
+        {loading && <p>Loading...</p>}
+
         {/* Transactions Section */}
         <section className="transactions">
           <h2>Recent Transactions</h2>
           <ul id="transaction-list">
             {transactions.length > 0 ? (
               transactions.map((transaction, index) => {
-                // Validate transaction fields
-                if (
-                  !transaction ||
-                  typeof transaction.type !== "string" || // Ensure `type` is a string
-                  typeof transaction.amount !== "number" || // Ensure `amount` is a number
-                  typeof transaction.description !== "string" // Ensure `description` is a string
-                ) {
-                  console.warn("Invalid transaction data:", transaction);
-                  return <li key={index}>Invalid transaction data</li>;
-                }
-
-                const description = transaction.description || "No description"; // Fallback for missing description
-                const type = transaction.type.toUpperCase(); // Ensure uppercase for type
-
+                const description = transaction.description || "No description";
+                const type = transaction.type.toUpperCase();
+                
                 return (
                   <li key={transaction.id || index}>
                     {type}: ${transaction.amount.toFixed(2)} - {description}
@@ -97,7 +114,7 @@ const DashboardTransaction = () => {
                 );
               })
             ) : (
-              <p>No transactions available.</p>
+              !loading && <p>No transactions available.</p>
             )}
           </ul>
         </section>
@@ -107,6 +124,7 @@ const DashboardTransaction = () => {
 };
 
 export default DashboardTransaction;
+     
 
 
 
